@@ -277,6 +277,7 @@ int main(int argc,char* argv[])
 		}
 
 		//convert the pheromone field to grayscale image
+		
 		image->combinePheromones(pherofield,3,0);		//the last value determines the color channel - 0 is for grayscale, 1 is red etc.
 		gui->drawImage(image);
 		
