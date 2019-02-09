@@ -25,9 +25,9 @@ float cameraHeight    = 0.85;	//camera height above the screen
 float robotHeight     = 0.025;	//height of the pattern from robot's base
 float robotDiameter   = 0.04;	//robot diameter
 char whyconIP[] = "localhost";	//IP of a machine that runs the localization
-bool dualMonitor      = true;	//do you want the pheromone system to be displayed on a secondary screen?
-int  imageWidth= 1280;//1920;		//adjust manually in case of dualMonitor = true, otherwise leave for auto-detection
-int  imageHeight = 720;//1080;	//adjust manually in case of dualMonitor = true, otherwise leave for auto-detection
+bool dualMonitor      = false;	//do you want the pheromone system to be displayed on a secondary screen?
+int  imageWidth= 1830;		//adjust manually in case of dualMonitor = true, otherwise leave for auto-detection
+int  imageHeight = 1000;	//adjust manually in case of dualMonitor = true, otherwise leave for auto-detection
 /*---------The previous values need to be adjusted by the user during the system set-up -------------*/
 
 
@@ -47,6 +47,7 @@ int leaderID = 0;		//ID of the leader robot
 int numBots = 1;		//number of robots in the arena
 float evaporation = 1;		//main pheromone half-life	[s]
 float diffusion = 0.0;		//main pheromone diffusion	- not implemented
+
 
 /*supporting classes and variables*/
 CTimer globalTimer;		//used to terminate the experiment after a given time
@@ -166,7 +167,7 @@ bool initializeLogging()
 	robotPositionLog = fopen(logFileName,"w");
 	if (robotPositionLog == NULL)
 	{
-		fprintf(stderr,"Cannot open log file %s. Does the \"output\" directory exist?\n",logFileName);
+		fprintf(stderr,"Cannot open log file %s. Does the \"output\" //directory exist?\n",logFileName);
 		return false;
 	}
 	return true;
@@ -209,7 +210,7 @@ int main(int argc,char* argv[])
 	numBots = atoi(argv[2]);
 	float evaporation = atof(argv[1]);
 
-	float diffusion = 0;
+	float diffusion = 1.0;
 	float influence = 1.0;
 
 	/*initialize the pheromone fields
@@ -276,7 +277,7 @@ int main(int argc,char* argv[])
 		}
 
 		//convert the pheromone field to grayscale image
-		image->combinePheromones(pherofield,3,0);		//the last value determines the color channel - 0 is for grayscale, 1 is red etc. 
+		image->combinePheromones(pherofield,3,0);		//the last value determines the color channel - 0 is for grayscale, 1 is red etc.
 		gui->drawImage(image);
 		
 	
