@@ -41,6 +41,9 @@ public:
 
   /*read pheromone value at a given spot*/
   float get(int x, int y);
+  
+  /*create wind and apply diffusion*/
+  void wind(int x, int y);
 
   /*clear the entire pheromone field*/
   void clear();
@@ -48,7 +51,6 @@ public:
   float evaporation;		//pheromone half-life
   float diffusion;		//pheromone spreading rate
   float influence;		//phromone influence
-
   int width;
   int height;
   int size;

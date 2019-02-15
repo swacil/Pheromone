@@ -102,15 +102,11 @@ void CPheroField::add(int x, int y,int id,int num,int radius)
 	lastX[id] = x;
 	lastY[id] = y;
 }
-
-void CPheroField::recompute()
+void CPheroField::wind(int x,int y)
 {
-	float timex = timer.getTime();
-	float decay = pow(2,-timex/1000000.0/evaporation);
-	//int diffV,diffH; // declaration of diffusion constants for each axe
-	for (int i = 0;i<size;i++) data[i]=data[i]*decay;
-	
-        if (diffusion > 0.0){
+    int windX = x;
+    int windY = y;
+    if (diffusion > 0.0){
 		//create an openCV structure
                 float* dataWind = (float*)calloc(size,sizeof(float));// An array containing wind speed
                 float v = 0.5; // coefficient multiplied to the wind matrix
@@ -147,11 +143,11 @@ void CPheroField::recompute()
                 mat = mat.mul(RestWind);
                 
 		//perform blur
-		//cv::GaussianBlur( mat, mat, cv::Size( 25, 25 ), 10, 10 );
+		cv::GaussianBlur( mat, mat, cv::Size( 11, 11 ), 3, 3 );
                 
                 //matSplit = v*mat; // Spliting mat into two with the wind coefficient (how much pheromone will be moved)
                 //mat = (1-v)*mat; // diffused pheromone from the original position - scalar v multiplication
-                cv::Mat trans = (cv::Mat_<double>(2,3) << 1, 0, -2, 0, 1, 2); // transformation matrix
+                cv::Mat trans = (cv::Mat_<double>(2,3) << 1, 0, windX, 0, 1, windY); // transformation matrix
                 warpAffine(matTemp,matTemp,trans,matTemp.size()); //warp
                 
                 //add shifted matrix and remaining matrix so that total amount of pheromone is same.
@@ -179,6 +175,16 @@ void CPheroField::recompute()
 			data[i-width] -= diffV*(1-diffuse);
 		}*/
 	}
+}
+    
+void CPheroField::recompute()
+{
+	float timex = timer.getTime();
+	float decay = pow(2,-timex/1000000.0/evaporation);
+	//int diffV,diffH; // declaration of diffusion constants for each axe
+	for (int i = 0;i<size;i++) data[i]=data[i]*decay;
+	
+        
 	//printf("Recompute took %.0f %f\n",timer.getTime()-timex,diffuse);
 	timer.reset();
 	timer.start();

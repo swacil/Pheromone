@@ -47,7 +47,8 @@ int leaderID = 0;		//ID of the leader robot
 int numBots = 1;		//number of robots in the arena
 float evaporation = 1;		//main pheromone half-life	[s]
 float diffusion = 0.0;		//main pheromone diffusion	- not implemented
-
+int windX = 0.0;
+int windY = 0.0;
 
 /*supporting classes and variables*/
 CTimer globalTimer;		//used to terminate the experiment after a given time
@@ -143,6 +144,11 @@ void processEvents()
 	       	pherofield[1]->clear();
 	       	pherofield[2]->clear();
 	}
+	//change wind vectors
+	if (keys[SDLK_UP]) windY-=1;
+        if (keys[SDLK_DOWN]) windY+=1;
+        if (keys[SDLK_LEFT]) windX-=1;
+        if (keys[SDLK_RIGHT]) windX+=1;
 
 	//generate new random positions to start
 	if (keys[SDLK_p] && lastKeys[SDLK_p] == false) randomPlacement();
@@ -209,7 +215,8 @@ int main(int argc,char* argv[])
 	//read number of robots and pheromone half-life from the command line
 	numBots = atoi(argv[2]);
 	float evaporation = atof(argv[1]);
-
+        windX = atoi(argv[3]);
+        windY = atoi(argv[4]);
 	float diffusion = 1.0;
 	float influence = 1.0;
 
@@ -237,7 +244,10 @@ int main(int argc,char* argv[])
 		//get the latest data from localization system and check if the calibration finished
 		stop = (globalTimer.getTime()/1000000>experimentTime);
 	
-
+                /* Apply wind and diffusion*/
+                pherofield[0]->wind(windX,windY);
+                pherofield[1]->wind(windX,windY);
+                pherofield[2]->wind(windX,windY);
 		/*PHEROMONE DECAY*/ 
 		pherofield[0]->recompute();	//main pheromone half-life (user-settable, usually long)
 		pherofield[1]->recompute();		//collision avoidance pheromone with quick decay
