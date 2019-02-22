@@ -108,62 +108,49 @@ void CPheroField::wind(int x,int y)
     int windY = y;
     if (diffusion > 0.0){
 		//create an openCV structure
-                float* dataWind = (float*)calloc(size,sizeof(float));// An array containing wind speed
+                //float* dataWind = (float*)calloc(size,sizeof(float));// An array containing wind speed
                 float v = 0.5; // coefficient multiplied to the wind matrix
-                float* dataTemp = (float*)calloc(size,sizeof(float)); //Temporary data to apply wind effect and diffusion seperately
-                float* dataTemp2 = (float*)calloc(size,sizeof(float)); //Temporary data of 1 - wind matrix
+                float* gradX = (float*)calloc(size,sizeof(float)); //Temporary data to apply wind effect and diffusion seperately
+                float* gradY = (float*)calloc(size,sizeof(float)); //Temporary data of 1 - wind matrix
 		cv::Mat mat = cv::Mat(height,width,CV_32F,data);
-                cv::Mat matTemp = cv::Mat(height,width,CV_32F,dataTemp); //  Temporary matrix which contains some proportion of the pheromone data and it will be multiplied by the wind matrix. (only some of pheromone is moving by wind)
-                cv::Mat matWind = cv::Mat(height,width,CV_32F,dataWind); // Wind matrix containing how fast the pheromone will be shifted
-                cv::Mat one = cv::Mat::ones(height,width,CV_32F); // a matrix size of arena containing ones.
-                cv::Mat RestWind = cv::Mat(height,width,CV_32F,dataTemp2); // a matrix of (1 - wind) - the proportion of pheromone will be diffused
-		bool over = false;
+                cv::Mat matX = cv::Mat(height,width,CV_32F,gradX); // grad X matrix
+                cv::Mat matY = cv::Mat(height,width,CV_32F,gradY); // grad Y matrix
+                //cv::Mat matWind = cv::Mat(height,width,CV_32F,dataWind); // Wind matrix containing how fast the pheromone 
+                cv::Mat kernelX = (cv::Mat_<float>(1,3) << -1.0, 0.0, 1.0);
+                cv::Mat kernelY = (cv::Mat_<float>(3,1) << -1.0, 0.0, 1.0);
+                cv::filter2D(mat,matX,-1,kernelX,cv::Point_<int>(-1,-1),0.0);
+                cv::filter2D(mat,matY,-1,kernelY,cv::Point_<int>(-1,-1),0.0);
+                matX = 0.5*matX;
+                matY = 0.5*matY;
+                
                 for (int j = 0; j < width; j++) {
                     for (int i = 0; i < height; i++) {
                         if (mat.at<float>(i,j) == 0) {
-                            matWind.at<float>(i,j) = 0; //pixel with 0 is not moving
+                            mat.at<float>(i,j) = 0; //pixel with 0 is not moving
                         }
                         else {
-                            matWind.at<float>(i,j) = 2-pow(2,(mat.at<float>(i,j)/512));//1-(0.9/255)*(mat.at<float>(i,j));2-pow(3,(mat.at<float>(i,j)/512));// tried (1/mat.at<float>(i,j) but it is not giving the effect I expected. This part is what I am still working on
-			   // if (matWind.at<float>(i,j) > 1) matWind.at<float>(i,j) = 1;
-			  //  if (matWind.at<float>(i,j) < 0) matWind.at<float>(i,j) = 0;
+                            mat.at<float>(i,j) -= 0.5*(windX*matX.at<float>(i,j)+windY*matY.at<float>(i,j));
                         }
                     }
                 }
-                // multiply the scalar v to matWind
-                matWind = matWind*v;
-                
-                // subtract 1 by matWind so that mat preserves non-shifted pheromone without any change in the amount
-                RestWind = one - matWind;
-                
-                // multiply mat by matWind so that the amount of pheromone will be moved is fixed
-                matTemp = mat.mul(matWind);
-                
-                // the rest of pheromone remain.
-                mat = mat.mul(RestWind);
-                
-		//perform blur
-		cv::GaussianBlur( mat, mat, cv::Size( 11, 11 ), 3, 3 );
-                
-                //matSplit = v*mat; // Spliting mat into two with the wind coefficient (how much pheromone will be moved)
-                //mat = (1-v)*mat; // diffused pheromone from the original position - scalar v multiplication
-                cv::Mat trans = (cv::Mat_<double>(2,3) << 1, 0, windX, 0, 1, windY); // transformation matrix
-                warpAffine(matTemp,matTemp,trans,matTemp.size()); //warp
-                
-                //add shifted matrix and remaining matrix so that total amount of pheromone is same.
-		mat = mat + matTemp;
-                 for (int j = 0; j < width; j++) {
-                    for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                for (int i = 0; i < height; i++) {
                         if (mat.at<float>(i,j) > 255) {
                             mat.at<float>(i,j) = 255 ; //if any data value is greater than the maximum value, it is limited to the maximum value.
                         }
                         
                     }
                 }
+                
+		//perform blur
+		cv::GaussianBlur( mat, mat, cv::Size( 11, 11 ), 3, 3 );
+                
+                
+                //add shifted matrix and remaining matrix so that total amount of pheromone is same.
                 //deallocate the memory
-                free(dataWind);
-                free(dataTemp);
-                free(dataTemp2);
+                free(gradX);
+                free(gradY);
+                //free(dataTemp2);
 		/*float diffuse = pow(2,-timex/1000000.0/diffusion);
 		for (int i = width+1;i<size;i++){
 			if (i%width == 0) i++;
