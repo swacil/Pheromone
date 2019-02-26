@@ -107,11 +107,12 @@ void CPheroField::wind(int x,int y)
     int windX = x;
     int windY = y;
     if (diffusion > 0.0){
+                float timex = timer.getTime();
 		//create an openCV structure
                 //float* dataWind = (float*)calloc(size,sizeof(float));// An array containing wind speed
-                float v = 0.5; // coefficient multiplied to the wind matrix
-                float* gradX = (float*)calloc(size,sizeof(float)); //Temporary data to apply wind effect and diffusion seperately
-                float* gradY = (float*)calloc(size,sizeof(float)); //Temporary data of 1 - wind matrix
+                //float v = 0.5; // coefficient multiplied to the wind matrix
+                float* gradX = (float*)calloc(size,sizeof(float)); //Gradient of pheromone in x direction
+                float* gradY = (float*)calloc(size,sizeof(float)); //Gradient of pheromone in y direction
 		cv::Mat mat = cv::Mat(height,width,CV_32F,data);
                 cv::Mat matX = cv::Mat(height,width,CV_32F,gradX); // grad X matrix
                 cv::Mat matY = cv::Mat(height,width,CV_32F,gradY); // grad Y matrix
@@ -129,7 +130,7 @@ void CPheroField::wind(int x,int y)
                             mat.at<float>(i,j) = 0; //pixel with 0 is not moving
                         }
                         else {
-                            mat.at<float>(i,j) -= 0.5*(windX*matX.at<float>(i,j)+windY*matY.at<float>(i,j));
+                            mat.at<float>(i,j) -= (windX*matX.at<float>(i,j)+windY*matY.at<float>(i,j))*timex/1000000.0;
                         }
                     }
                 }
@@ -143,7 +144,7 @@ void CPheroField::wind(int x,int y)
                 }
                 
 		//perform blur
-		cv::GaussianBlur( mat, mat, cv::Size( 11, 11 ), 3, 3 );
+		cv::GaussianBlur( mat, mat, cv::Size( 25, 25 ), 10, 10 );
                 
                 
                 //add shifted matrix and remaining matrix so that total amount of pheromone is same.
@@ -161,6 +162,8 @@ void CPheroField::wind(int x,int y)
 			data[i-1] -= diffH*(1-diffuse);
 			data[i-width] -= diffV*(1-diffuse);
 		}*/
+                timer.reset();
+                timer.start();
 	}
 }
     
