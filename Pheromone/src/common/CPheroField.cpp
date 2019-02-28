@@ -83,7 +83,39 @@ float CPheroField::get(int x, int y)
 	if (x > 0 && y >0 && x<width && y<height) return data[x+y*width];
 	return -1;
 }
-
+void CPheroField::circle(int x, int y,int id,int num,int radius)
+{
+    id = id%MAX_ID;
+    int pos = 0;
+    int iix,iiy;
+    for (int ix = -radius;ix<radius+1;ix++){
+		iix = ix +x;
+		for (int iy = -radius;iy<radius+1;iy++){
+			iiy = iy +y;
+			if ((ix*ix)+(iy*iy)<=radius*radius){
+				pos = (iix+iiy*width);
+				data[pos] += num;
+			}
+		}
+	}
+}
+void CPheroField::rectangle(int x, int y,int id,int num,int width,int height)
+{
+    id = id%MAX_ID;
+    int pos = 0;
+    int iix,iiy;
+    for (int ix = -radius;ix<radius+1;ix++){
+		iix = ix +x;
+		for (int iy = -radius;iy<radius+1;iy++){
+			iiy = iy +y;
+			if ((ix*ix)+(iy*iy)<=radius*radius){
+				pos = (iix+iiy*width);
+				data[pos] += num;
+			}
+		}
+	}
+}
+    
 void CPheroField::add(int x, int y,int id,int num,int radius)
 {
 	id = id%MAX_ID;
@@ -102,6 +134,14 @@ void CPheroField::add(int x, int y,int id,int num,int radius)
 	lastX[id] = x;
 	lastY[id] = y;
 }
+void CPheroField::diff(int x, int y)
+{
+    int kernelSize = x;
+    int sigma = y;
+    cv::Mat mat = cv::Mat(height,width,CV_32F,data);
+    cv::GaussianBlur( mat, mat, cv::Size( kernelSize, kernelSize ), sigma, sigma );
+}
+    
 void CPheroField::wind(int x,int y)
 {
     int windX = x;
@@ -144,10 +184,10 @@ void CPheroField::wind(int x,int y)
                 }
                 
 		//perform blur
-		//cv::GaussianBlur( mat, mat, cv::Size( 25, 25 ), 10, 10 );
+		cv::GaussianBlur( mat, mat, cv::Size( 3, 3 ), 2, 2 );
                 
                 
-                //add shifted matrix and remaining matrix so that total amount of pheromone is same.
+                //add the shifted matrix and remaining matrix so that total amount of pheromone is same.
                 //deallocate the memory
                 free(gradX);
                 free(gradY);

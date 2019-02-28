@@ -50,6 +50,8 @@ float evaporation = 1;		//main pheromone half-life	[s]
 float diffusion = 0.0;		//main pheromone diffusion	- not implemented
 int windX = 0.0;
 int windY = 0.0;
+int diffKernelSize = 25; // kernel size and sigma must be odd integer numbers
+int diffSigma = 3;
 
 /*supporting classes and variables*/
 CTimer globalTimer;		//used to terminate the experiment after a given time
@@ -71,6 +73,9 @@ Uint8 lastKeys[1000];
 Uint8 *keys = NULL;
 bool leftMousePressed = false;
 bool rightMousePressed = false;
+bool enterPressed = false;
+bool diffusionOn = false;
+bool advectionOn = false;
 
 /*CTRL-C handler*/
 void ctrl_c_handler(int a)
@@ -165,7 +170,7 @@ void processEvents()
         if (keys[SDLK_DOWN]) windY+=1;
         if (keys[SDLK_LEFT]) windX-=1;
         if (keys[SDLK_RIGHT]) windX+=1;
-
+        
 	//generate new random positions to start
 	if (keys[SDLK_p] && lastKeys[SDLK_p] == false) randomPlacement();
 	if (keys[SDLK_c] && lastKeys[SDLK_c] == false) calibration = true;
@@ -173,6 +178,12 @@ void processEvents()
 	//save an image
 	if (keys[SDLK_s] && lastKeys[SDLK_s] == false) image->saveBmp();
 	memcpy(lastKeys,keys,keyNumber);
+        //experiment settings ( 1 - no effects, 2 - diffusion only, 3 - advection only, 4 - both effects)
+        if (keys[SDLK_RETURN]) enterPressed = true; //pheromone circle regeneration
+        if (keys[SDLK_1]) {diffusionOn = false; advectionOn = false;}
+        if (keys[SDLK_2]) {diffusionOn = true; advectionOn = false;}
+        if (keys[SDLK_3]) {diffusionOn = false; advectionOn = true;}
+        if (keys[SDLK_4]) {diffusionOn = true; advectionOn = true;}
 }
 
 /*initialize logging*/
@@ -268,9 +279,18 @@ int main(int argc,char* argv[])
 		//get the latest data from localization system and check if the calibration finished
 		stop = (globalTimer.getTime()/1000000>experimentTime);
                 /* Apply wind and diffusion*/
-                pherofield[0]->wind(windX,windY);
-                pherofield[1]->wind(windX,windY);
-                pherofield[2]->wind(windX,windY);
+                if (advectionOn == true)
+                {
+                    pherofield[0]->wind(windX,windY);
+                    pherofield[1]->wind(windX,windY);
+                    pherofield[2]->wind(windX,windY);
+                }
+                if (diffusionOn == true)
+                {
+                    pherofield[0]->diff(diffKernelSize,diffSigma);
+                    pherofield[1]->diff(diffKernelSize,diffSigma);
+                    pherofield[2]->diff(diffKernelSize,diffSigma);
+                }
 		/*PHEROMONE DECAY*/ 
 		pherofield[0]->recompute();	//main pheromone half-life (user-settable, usually long)
 		pherofield[1]->recompute();		//collision avoidance pheromone with quick decay
@@ -352,19 +372,13 @@ int main(int argc,char* argv[])
 		//update GUI etc
 		gui->update();
 		processEvents();
-                if ((randomTimer.getTime() <= 4000000)){
-                    
-                    pherofield[0]->add(Xp,Yp,1,255,100);
-                  
-                }
-                else{
+                if (enterPressed == true){
                     pherofield[0]->clear();
-                Xp = randomX();
-                Yp = randomY();
-                randomTimer.reset();
-                randomTimer.start();
+                    Xp = randomX();
+                    Yp = randomY();
+                    pherofield[0]->circle(250,500,1,255,241);
+                    enterPressed = false;
                 }
-
        // }
 		printf("GUI refresh: %i ms, updates %i frame delay %.0f ms\n",performanceTimer.getTime()/1000,client->updates,(performanceTimer.getRealTime()-client->frameTime)/1000.0);
 		performanceTimer.reset();

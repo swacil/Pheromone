@@ -32,6 +32,10 @@ public:
   /*apply evaporation and diffusion*/
   void recompute();
 
+  /*inject a circle of pheromone*/
+  void circle(int x, int y,int id,int num,int radius);
+  /*inject a rectangle of pheromone*/
+  void rectangle(int x, int y,int id,int num,int width,int height);
   /*inject pheromone to a given spot*/
   void add(int x, int y,int id,int num,int radius);
 
@@ -44,6 +48,9 @@ public:
   
   /*create wind and apply diffusion*/
   void wind(int x, int y);
+
+  /*create diffusion effect*/
+  void diff(int kernelSize, int sigma);
 
   /*clear the entire pheromone field*/
   void clear();
