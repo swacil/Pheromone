@@ -108,7 +108,7 @@ void CPheroField::rectangle(int x, int y,int id,int num,int width,int height)
 		iix = ix +x;
 		for (int iy = -radius;iy<radius+1;iy++){
 			iiy = iy +y;
-			if ((ix*ix)+(iy*iy)<=radius*radius){
+			if (iix >= -(width/2) && iix < (width/2) && iiy >= -(height/2) && iiy < (height/2){
 				pos = (iix+iiy*width);
 				data[pos] += num;
 			}
