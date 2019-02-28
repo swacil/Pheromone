@@ -144,7 +144,7 @@ void CPheroField::wind(int x,int y)
                 }
                 
 		//perform blur
-		cv::GaussianBlur( mat, mat, cv::Size( 25, 25 ), 10, 10 );
+		//cv::GaussianBlur( mat, mat, cv::Size( 25, 25 ), 10, 10 );
                 
                 
                 //add shifted matrix and remaining matrix so that total amount of pheromone is same.

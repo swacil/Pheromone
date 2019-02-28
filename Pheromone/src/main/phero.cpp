@@ -6,6 +6,7 @@
 #include "CRawImage.h"
 #include "CPheroField.h"
 #include "CPositionClient.h"
+#include <cstdlib>
 #include <SDL/SDL.h>
 
 #define MAX_ROBOTS 100
@@ -105,6 +106,21 @@ bool randomPlacement()
 	globalTimer.pause();
 	return true;
 }
+int randomX()
+{
+    
+    int rand();
+    int x = (rand()%(imageWidth-400))+200;
+    return x;
+}
+int randomY()
+{
+    
+    int rand();
+    int y = (rand()%(imageHeight-300))+150;
+    return y;
+}
+
 
 /*process mouse and keyboard events coming from the GUI*/
 void processEvents()
@@ -203,6 +219,7 @@ void logRobotPositions()
 
 int main(int argc,char* argv[])
 {
+        
 	//register ctrl+c handler
 	signal (SIGINT,ctrl_c_handler);
 	//initialize the logging system
@@ -234,16 +251,22 @@ int main(int argc,char* argv[])
 	client = new CPositionClient();
 	client->init(whyconIP,"6666");
 	image->getSaveNumber();
+        
 
 	randomPlacement();
-
+        
+            
 	globalTimer.pause();
 	CTimer performanceTimer;
+        CTimer randomTimer;
+        randomTimer.start();
+        int Xp = randomX();
+        int Yp = randomY();
 	performanceTimer.start();
 	while (stop == false){
+                
 		//get the latest data from localization system and check if the calibration finished
 		stop = (globalTimer.getTime()/1000000>experimentTime);
-	
                 /* Apply wind and diffusion*/
                 pherofield[0]->wind(windX,windY);
                 pherofield[1]->wind(windX,windY);
@@ -254,6 +277,7 @@ int main(int argc,char* argv[])
 		pherofield[2]->recompute();		//suppression pheromone with quick decay
 
 		client->checkForData();
+                
 
 		/*PHEROMONE INJECTION*/
 		if (calibration==false && placement==false)
@@ -328,6 +352,20 @@ int main(int argc,char* argv[])
 		//update GUI etc
 		gui->update();
 		processEvents();
+                if ((randomTimer.getTime() <= 4000000)){
+                    
+                    pherofield[0]->add(Xp,Yp,1,255,100);
+                  
+                }
+                else{
+                    pherofield[0]->clear();
+                Xp = randomX();
+                Yp = randomY();
+                randomTimer.reset();
+                randomTimer.start();
+                }
+
+       // }
 		printf("GUI refresh: %i ms, updates %i frame delay %.0f ms\n",performanceTimer.getTime()/1000,client->updates,(performanceTimer.getRealTime()-client->frameTime)/1000.0);
 		performanceTimer.reset();
 	}
