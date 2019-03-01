@@ -48,9 +48,9 @@ int leaderID = 0;		//ID of the leader robot
 int numBots = 1;		//number of robots in the arena
 float evaporation = 1;		//main pheromone half-life	[s]
 float diffusion = 0.0;		//main pheromone diffusion	- not implemented
-int windX = 0.0;
-int windY = 0.0;
-int diffKernelSize = 25; // kernel size and sigma must be odd integer numbers
+float windX = 0.0;
+float windY = 0.0;
+int diffKernelSize = 15; // kernel size and sigma must be odd integer numbers
 int diffSigma = 3;
 
 /*supporting classes and variables*/
@@ -376,10 +376,14 @@ int main(int argc,char* argv[])
                     pherofield[0]->clear();
                     Xp = randomX();
                     Yp = randomY();
-                    pherofield[0]->circle(250,500,1,255,241);
+                    
+                    
+                    pherofield[0]->circle(258,500,1,255,257); // 255pixel == 12.5cm
+                    pherofield[0]->rectangle(990,330,1,255,825,165); //width 40cm height 8 cm (1cm == 20.625 pixels)
                     enterPressed = false;
                 }
-       // }
+                // check if the pheromone intensity at a position is in a certain value range
+                pherofield[0]->measure(258,500,191);
 		printf("GUI refresh: %i ms, updates %i frame delay %.0f ms\n",performanceTimer.getTime()/1000,client->updates,(performanceTimer.getRealTime()-client->frameTime)/1000.0);
 		performanceTimer.reset();
 	}

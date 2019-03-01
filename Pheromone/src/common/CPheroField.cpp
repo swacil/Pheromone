@@ -99,18 +99,18 @@ void CPheroField::circle(int x, int y,int id,int num,int radius)
 		}
 	}
 }
-void CPheroField::rectangle(int x, int y,int id,int num,int width,int height)
+void CPheroField::rectangle(int x, int y,int id,int num,int a,int b)
 {
     id = id%MAX_ID;
     int pos = 0;
     int iix,iiy;
-    for (int ix = -radius;ix<radius+1;ix++){
+    for (int ix = -a;ix<a+1;ix++){
 		iix = ix +x;
-		for (int iy = -radius;iy<radius+1;iy++){
+		for (int iy = -b;iy<b+1;iy++){
 			iiy = iy +y;
-			if ((ix*ix)+(iy*iy)<=radius*radius){
+			if (ix >= -(a/2) && ix < (a/2) && iy >= -(b/2) && iy < (b/2)){
 				pos = (iix+iiy*width);
-				data[pos] += num;
+                                data[pos] += num;
 			}
 		}
 	}
@@ -142,10 +142,10 @@ void CPheroField::diff(int x, int y)
     cv::GaussianBlur( mat, mat, cv::Size( kernelSize, kernelSize ), sigma, sigma );
 }
     
-void CPheroField::wind(int x,int y)
+void CPheroField::wind(float x,float y)
 {
-    int windX = x;
-    int windY = y;
+    float windX = x;
+    float windY = y;
     if (diffusion > 0.0){
                 float timex = timer.getTime();
 		//create an openCV structure
@@ -184,7 +184,7 @@ void CPheroField::wind(int x,int y)
                 }
                 
 		//perform blur
-		cv::GaussianBlur( mat, mat, cv::Size( 3, 3 ), 2, 2 );
+		cv::GaussianBlur( mat, mat, cv::Size( 3, 3 ), 1.1, 1.1 ); //11 3 for max vel circle experiment //3 1.1 maxrec
                 
                 
                 //add the shifted matrix and remaining matrix so that total amount of pheromone is same.
@@ -214,8 +214,24 @@ void CPheroField::recompute()
 	//int diffV,diffH; // declaration of diffusion constants for each axe
 	for (int i = 0;i<size;i++) data[i]=data[i]*decay;
 	
-        
 	//printf("Recompute took %.0f %f\n",timer.getTime()-timex,diffuse);
 	timer.reset();
 	timer.start();
+}
+void CPheroField::measure(int x, int y,int z)
+{
+    if (data[x+y*width] <= z ) {
+        int pos = 0;
+        int iix,iiy;
+        for (int ix = -10;ix<11;ix++){
+		iix = ix +x;
+		for (int iy = -10;iy<11;iy++){
+			iiy = iy +y;
+			if ((ix*ix)+(iy*iy)<=100){
+				pos = (iix+iiy*width);
+				data[pos] = 0;
+			}
+		}
+	}
+    }
 }

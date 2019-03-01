@@ -47,10 +47,13 @@ public:
   float get(int x, int y);
   
   /*create wind and apply diffusion*/
-  void wind(int x, int y);
+  void wind(float x, float y);
 
   /*create diffusion effect*/
   void diff(int kernelSize, int sigma);
+  
+  /*measure pheromone intensity at a position and leave a mark on the pheromone*/
+  void measure(int x, int y, int z);
 
   /*clear the entire pheromone field*/
   void clear();
