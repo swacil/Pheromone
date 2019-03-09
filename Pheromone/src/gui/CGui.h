@@ -5,6 +5,7 @@
 #include <math.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_ttf.h>
+#include "CTimer.h"
 
 /*
 author Tom Krajnik tkrajnik@lincoln.ac.uk
@@ -42,7 +43,9 @@ public:
 
   /*saves the screen to the 'output' directory*/
   void saveScreen(int a);
-
+  /*displays the experiment time*/
+  void displayTimer(CTimer timer);
+  
 private:
   SDL_Surface *screen;
   int width,height;

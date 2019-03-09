@@ -51,7 +51,7 @@ float diffusion = 0.0;		//main pheromone diffusion	- not implemented
 float windX = 0.0;
 float windY = 0.0;
 int diffKernelSize = 15; // kernel size and sigma must be odd integer numbers
-int diffSigma = 3;
+int diffSigma = 0.1;
 
 /*supporting classes and variables*/
 CTimer globalTimer;		//used to terminate the experiment after a given time
@@ -92,7 +92,7 @@ bool randomPlacement()
 	while (i < numBots)
 	{
 		//generate position
-		initX[i] = rand()%(imageWidth-initBorder*2)+initBorder;
+		initX[i] = rand()%(imageWidth/2-initBorder*2)+initBorder; // use only the left half of the arena
 		initY[i] = rand()%(imageHeight-initBorder*2)+initBorder;
 		initA[i] = (rand()%628)/100.0;
 		//check for overlap
@@ -269,8 +269,7 @@ int main(int argc,char* argv[])
             
 	globalTimer.pause();
 	CTimer performanceTimer;
-        CTimer randomTimer;
-        randomTimer.start();
+        CTimer ExpTimer;
         int Xp = randomX();
         int Yp = randomY();
 	performanceTimer.start();
@@ -334,6 +333,7 @@ int main(int argc,char* argv[])
 		
 		image->combinePheromones(pherofield,3,0);		//the last value determines the color channel - 0 is for grayscale, 1 is red etc.
 		gui->drawImage(image);
+                gui->displayTimer(ExpTimer);
 		
 	
 		//experiment preparation phase 2: draw initial and real robot positions
@@ -358,32 +358,37 @@ int main(int argc,char* argv[])
 
 
 		//experiment preparation phase 1: draw calibration, contact WhyCon to calibrate and draw initial robot positions
-		if (calibration){
-			int calibRadius = initRadius/(cameraHeight-robotHeight)*cameraHeight;		//slightly enlarge to compensate for the higher distance from the camera
-			gui->displayCalibrationInfo(cameraHeight,client->numSearched,client->numDetected,calibRadius,performanceTimer.getTime()/1000);
-			client->calibrate(numBots,arenaLength,arenaWidth,cameraHeight,robotDiameter,robotHeight);
-			client->checkForData();
-		}else if (placement){
-			 gui->displayPlacementInfo(client->numSearched,client->numDetected);
-		}
-		calibration = client->calibrated==false;
+		//if (calibration){
+		//	int calibRadius = initRadius/(cameraHeight-robotHeight)*cameraHeight;		//slightly enlarge to compensate for the higher distance from the camera
+		//	gui->displayCalibrationInfo(cameraHeight,client->numSearched,client->numDetected,calibRadius,performanceTimer.getTime()/1000);
+		//	client->calibrate(numBots,arenaLength,arenaWidth,cameraHeight,robotDiameter,robotHeight);
+		//	client->checkForData();
+		//}else if (placement){
+		//	 gui->displayPlacementInfo(client->numSearched,client->numDetected);
+		//}
+		//calibration = client->calibrated==false;
 
 
 		//update GUI etc
 		gui->update();
 		processEvents();
                 if (enterPressed == true){
+                    ExpTimer.start();
+                    placement = false;
                     pherofield[0]->clear();
                     Xp = randomX();
                     Yp = randomY();
                     
                     
-                    pherofield[0]->circle(258,500,1,255,257); // 255pixel == 12.5cm
-                    pherofield[0]->rectangle(990,330,1,255,825,165); //width 40cm height 8 cm (1cm == 20.625 pixels)
+                    pherofield[0]->circle(1490,500,1,255,257); // 255pixel == 12.5cm
+                    //pherofield[0]->rectangle(990,330,1,255,825,165); //width 40cm height 8 cm (1cm == 20.625 pixels)
                     enterPressed = false;
                 }
-                // check if the pheromone intensity at a position is in a certain value range
-                pherofield[0]->measure(258,500,191);
+                if (ExpTimer.getTime() >=300000000) {
+                    stop = true;
+                }
+                 //check if the pheromone intensity at a position is in a certain value range
+               // pherofield[0]->measure(1490,500,127);
 		printf("GUI refresh: %i ms, updates %i frame delay %.0f ms\n",performanceTimer.getTime()/1000,client->updates,(performanceTimer.getRealTime()-client->frameTime)/1000.0);
 		performanceTimer.reset();
 	}
