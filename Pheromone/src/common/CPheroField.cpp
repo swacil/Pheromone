@@ -184,7 +184,7 @@ void CPheroField::wind(float x,float y)
                 }
                 
 		//perform blur
-		cv::GaussianBlur( mat, mat, cv::Size( 3, 3 ), 1.1, 1.1 ); //11 3 for max vel circle experiment //3 1.1 maxrec
+		cv::GaussianBlur( mat, mat, cv::Size( 3, 3 ), 1, 1 ); //11 3 for max vel circle experiment //3 1.1 maxrec
                 
                 
                 //add the shifted matrix and remaining matrix so that total amount of pheromone is same.

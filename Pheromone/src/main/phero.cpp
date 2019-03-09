@@ -51,7 +51,7 @@ float diffusion = 0.0;		//main pheromone diffusion	- not implemented
 float windX = 0.0;
 float windY = 0.0;
 int diffKernelSize = 15; // kernel size and sigma must be odd integer numbers
-int diffSigma = 0.1;
+int diffSigma = 0.3;
 
 /*supporting classes and variables*/
 CTimer globalTimer;		//used to terminate the experiment after a given time
@@ -179,7 +179,7 @@ void processEvents()
 	if (keys[SDLK_s] && lastKeys[SDLK_s] == false) image->saveBmp();
 	memcpy(lastKeys,keys,keyNumber);
         //experiment settings ( 1 - no effects, 2 - diffusion only, 3 - advection only, 4 - both effects)
-        if (keys[SDLK_RETURN]) enterPressed = true; //pheromone circle regeneration
+        if (keys[SDLK_RETURN] && lastKeys[SDLK_RETURN] == true) enterPressed = true; //pheromone circle regeneration
         if (keys[SDLK_1]) {diffusionOn = false; advectionOn = false;}
         if (keys[SDLK_2]) {diffusionOn = true; advectionOn = false;}
         if (keys[SDLK_3]) {diffusionOn = false; advectionOn = true;}
