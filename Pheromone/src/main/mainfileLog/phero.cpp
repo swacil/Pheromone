@@ -55,10 +55,9 @@ float diffusion = 0.0;		//main pheromone diffusion	- not implemented
 float windX = 0.0;
 float windY = 0.0;
 int diffKernelSize = 15; // kernel size and sigma must be odd integer numbers
-int diffSigma = 6;
+int diffSigma = 3;
 /*supporting classes and variables*/
 CTimer globalTimer;		//used to terminate the experiment after a given time
-CTimer R1Timer, R2Timer, R3Timer, R4Timer, R5Timer, R6Timer;
 FILE *robotPositionLog = NULL;	//file to log robot positions
 float initX[MAX_ROBOTS];	//initial positions
 float initY[MAX_ROBOTS];	//initial positions
@@ -68,7 +67,6 @@ CGui* gui;
 CRawImage *image;
 CPositionClient* client;
 char logFileName[1000];
-
 
 /*GUI-related variables*/
 bool stop = false;
@@ -135,111 +133,143 @@ int randomY()
     return y;
 }
 
-void pheroDelayRelease(float * xPB1_p, float * xPB2_p, float * yPB1_p, float * yPB2_p, bool * isRobotStop_p)
-{		
-	for (int i = 0; i < numBots; i++)
-	{
-		if (xPB1_p[i] == xPB2_p[i] &&  yPB1_p[i] == yPB2_p[i])
-		{
-			switch(i){
-				case 0:
-					// if (R1Timer.isRunning() == false) {
-					// 	R1Timer.reset();
-					// 	R1Timer.start();
-					// 	isRobotStop_p[i] = false;
-					// }
-					if (R1Timer.getTime() >= 10000000){
-						isRobotStop_p[i] = true;
-					}
-					else {
-						if (R1Timer.isRunning() == false){
-							R1Timer.reset();
-							R1Timer.start();
-						}
-							isRobotStop_p[i] = false;
-					}
-				case 1:
-					if (R2Timer.getTime() >= 10000000){
-						isRobotStop_p[i] = true;
-					}
-					else {
-						if (R2Timer.isRunning() == false){
-							R2Timer.reset();
-							R2Timer.start();
-						}
-							isRobotStop_p[i] = false;
-					}
-				case 2:
-					if (R3Timer.getTime() >= 10000000){
-						isRobotStop_p[i] = true;
-					}
-					else {
-						if (R3Timer.isRunning() == false){
-							R3Timer.reset();
-							R3Timer.start();
-						}
-							isRobotStop_p[i] = false;
-					}
-				case 3:
-					if (R4Timer.getTime() >= 10000000){
-						isRobotStop_p[i] = true;
-					}
-					else {
-						if (R4Timer.isRunning() == false){
-							R4Timer.reset();
-							R4Timer.start();
-						}
-							isRobotStop_p[i] = false;
+//MSc Project
 
-					}
-				case 4:
-					if (R5Timer.getTime() >= 10000000){
-						isRobotStop_p[i] = true;
-					}
-					else {
-						if (R5Timer.isRunning() == false){
-							R5Timer.reset();
-							R5Timer.start();
-						}
-							isRobotStop_p[i] = false;
-					}
-				case 5:
-					if (R6Timer.getTime() >= 10000000){
-						isRobotStop_p[i] = true;
-					}
-					else {
-						if (R6Timer.isRunning() == false){
-							R6Timer.reset();
-							R6Timer.start();
-						}
-							isRobotStop_p[i] = false;
-					}
-					// if (R6Timer.getTime() >= 2000000)
-					// 	isRobotStop_p[i] = true;
-					// else {
-					// 	if (R1Timer.isRunning() == false){
-					// 		R1Timer.reset();
-					// 		R1Timer.start();
-					// 	}
-					// 	else{
-					// 		isRobotStop_p[i] = false;
-					// 	}
-					// }
-			} 
-		}
-		else {
-				isRobotStop_p[i] = false;
-		}
-		
-    	if (client->getID(i) != -1 && client->getID(i) != 1 && isRobotStop_p[i] == true){
+//Gradient Cycle  'Gracircle(int x, int y,int id,int num,int radius);'
 
-			pherofield[0]->addTo(client->getX(i)*imageWidth/arenaLength,client->getY(i)*imageHeight/arenaWidth,i,pheroStrength);                    
-        
-		}
-		printf("R1Timer: %8f, is timer running? : %d\n", R1Timer.getTime(),R1Timer.isRunning());
-    }   
+//Delay Function
+
+void delay_sec(int sec)
+{
+    time_t start_time, cur_time;
+    time(&start_time);
+    do
+    {
+        time(&cur_time);
+    } while((cur_time - start_time)<sec);
 }
-    
+
+void delay_msec(int msec)
+{
+    clock_t now = clock();
+    while(clock()-now < msec);
+}
+// Are these for 6 robot cases? What does each array mean? 
+float tarx[6]={0,0,0,0,0,0}; // x coordinate?
+float tarxx[6]={0,0,0,0,0,0};// what is this?
+float taryy[6]={0,0,0,0,0,0};
+float tary[6]={0,0,0,0,0,0};
+float tarn=0;
+float lasttarx[6]={0,0,0,0,0,0};
+float lasttary[6]={0,0,0,0,0,0};
+int dk=0;
+int time1=0;
+int time2=0;
+float le[6]={0,0,0,0,0,0};
+int pt[6]={0,0,0,0,0,0};
+int sk[6]={0,0,0,0,0,0};
+int ch[6]={0,0,0,0,0,0};
+int cw[6]={0,0,0,0,0,0};
+//int yv=0;
+
+//main project
+
+void MSc_Project()
+{
+    client->checkForData();    
+    for (int l=0;l<numBots;l++)
+        {
+            tarx[l]=client->getX(l)*imageWidth/arenaLength;
+            tary[l]=client->getY(l)*imageHeight/arenaWidth;
+            tarx[l]=imageWidth-tarx[l];
+            tary[l]=imageHeight-tary[l];
+            if (tarx[l]==lasttarx[l] && tary[l]==lasttary[l])
+            {
+                if (ch[l]==0)
+                {
+                //Delay Method1
+                
+                //delay_sec(2);
+                
+                //Delay Method2
+                
+                //dk=0;
+                //while (dk<1000000000)
+                //{
+                //    dk=dk+1;
+                //    if (keys[SDLK_ESCAPE]) break;
+                //}
+                
+                //Delay Method3
+                
+               // time1=client->getTime(l);
+               // time2=time1;
+               // while ((time2-time1)<2) //check after 2 seconds
+                //{
+                 //   client->checkForData();
+                  //  time2=client->getTime(l);
+                
+               // }
+                 
+                    //Delay Method4  
+                    cw[l]=cw[l]+1;
+                      //Check the position
+                      if (cw[l]<30)
+                      {
+                          lasttarx[l]=tarx[l];
+                          lasttary[l]=tary[l];
+                      }
+                      else if (cw[l]>30)
+                      {
+                      client->checkForData();
+                      tarxx[l]=client->getX(l)*imageWidth/arenaLength;
+                      taryy[l]=client->getY(l)*imageHeight/arenaWidth;
+                      tarxx[l]=imageWidth-tarxx[l];
+                      taryy[l]=imageHeight-taryy[l];
+                      
+                        if (tarxx[l]==tarx[l] && taryy[l]==tary[l])
+                        {
+                            for (int k=0;k<6;k++)
+                            {
+                            pherofield[0]->add(tarxx[l],taryy[l],1,12,75);
+                          //delay_msec(500);
+                            }
+                        le[l]=1;
+                     
+                        }
+                
+                  lasttarx[l]=tarxx[l];
+                  lasttary[l]=taryy[l];
+                //yv=0;
+                //}
+                  cw[l]=0;
+                      }
+                }
+            }
+            
+        if (tarx[l]-lasttarx[l]>1 || tary[l]-lasttary[l]>1 || tarx[l]-lasttarx[l]<-1 || tary[l]-lasttary[l]<-1)
+            {
+                if (le[l]==1)
+                {
+                pherofield[0]->add(tarx[l],tary[l],1,45,45);
+                pt[l]=pt[l]+1;
+                ch[l]=1;
+                }
+                lasttarx[l]=tarx[l];
+                lasttary[l]=tary[l];
+            }
+            if (pt[l]>60)
+            {
+               le[l]=0;
+               pt[l]=0;
+               ch[l]=0;
+            }
+            printf("--> %f %d \n",tarx[l],lasttarx[l]);
+        } 
+}
+int py=0;
+//
+
 /*process mouse and keyboard events coming from the GUI*/
 void processEvents()
 {
@@ -314,8 +344,12 @@ bool initializeLogging()
 	time(&timeNow);
 	strftime(timeStr, sizeof(timeStr), "%Y-%m-%d_%H-%M-%S",localtime(&timeNow));
 	sprintf(logFileName,"output/Phero_%.3f_%s.txt",evaporation,timeStr);
-	robotPositionLog = fopen(logFileName,"w");float positionBuffer1[2*numBots];
-        float positionBuffer2[2*numBots];
+	robotPositionLog = fopen(logFileName,"w");
+	if (robotPositionLog == NULL)
+	{
+		fprintf(stderr,"Cannot open log file %s. Does the \"output\" //directory exist?\n",logFileName);
+		return false;
+	}
 	return true;
 }
 
@@ -358,8 +392,8 @@ int main(int argc,char* argv[])
 	//read number of robots and pheromone half-life from the command line
 	numBots = atoi(argv[2]);
 	float evaporation = atof(argv[1]);
-    windX = atoi(argv[3]);
-    windY = atoi(argv[4]);
+        windX = atoi(argv[3]);
+        windY = atoi(argv[4]);
 	float diffusion = 1.0;
 	float influence = 1.0;
 
@@ -380,55 +414,31 @@ int main(int argc,char* argv[])
         
 
 	randomPlacement();
-	// The below buffers contain position value of robots.
-	float xPositionBuffer1[numBots];
-	float xPositionBuffer2[numBots];
-	float yPositionBuffer1[numBots];
-	float yPositionBuffer2[numBots];
-	// Declare pointer variables for the buffers
-	float *xPB1_p = xPositionBuffer1;
-	float *xPB2_p = xPositionBuffer2;
-	float *yPB1_p = yPositionBuffer1;
-	float *yPB2_p = yPositionBuffer2;
-	for (int i = 0; i < numBots; i++)
-	{
-    	xPositionBuffer1[i] = 0; // initialization of arrays
-		xPositionBuffer2[i] = 0;
-		yPositionBuffer1[i] = 0;
-		yPositionBuffer2[i] = 0;
-	}   
-	bool isRobotStop[numBots];
-	bool* isRobotStop_p = isRobotStop;
-	for (int i = 0; i < numBots; i++){
-		isRobotStop[i] = false;
-	}
-
+        
+            
 	globalTimer.pause();
 	CTimer performanceTimer;
-    CTimer ExpTimer;
-
-    int Xp = randomX();
-    int Yp = randomY();
-    int count = 0;
+        CTimer ExpTimer;
+        int Xp = randomX();
+        int Yp = randomY();
 	performanceTimer.start();
 	while (stop == false){
                 
 		//get the latest data from localization system and check if the calibration finished
 		stop = (globalTimer.getTime()/1000000>experimentTime);
-        count++;
                 /* Apply wind and diffusion*/
-   		if (advectionOn == true)
-    	{
-        	pherofield[0]->wind(windX,windY);
-        	pherofield[1]->wind(windX,windY);
-        	pherofield[2]->wind(windX,windY);
-    	}
-    	if (diffusionOn == true)
-    	{
-        	pherofield[0]->diff(diffKernelSize,diffSigma);
-        	pherofield[1]->diff(diffKernelSize,diffSigma);
-        	pherofield[2]->diff(diffKernelSize,diffSigma);
-    	}
+                if (advectionOn == true)
+                {
+                    pherofield[0]->wind(windX,windY);
+                    pherofield[1]->wind(windX,windY);
+                    pherofield[2]->wind(windX,windY);
+                }
+                if (diffusionOn == true)
+                {
+                    pherofield[0]->diff(diffKernelSize,diffSigma);
+                    pherofield[1]->diff(diffKernelSize,diffSigma);
+                    pherofield[2]->diff(diffKernelSize,diffSigma);
+                }
 		/*PHEROMONE DECAY*/ 
 		pherofield[0]->recompute();	//main pheromone half-life (user-settable, usually long)
 		pherofield[1]->recompute();		//collision avoidance pheromone with quick decay
@@ -436,7 +446,14 @@ int main(int argc,char* argv[])
 
 		client->checkForData();
                 
-        //Pheromone Injection 
+                //MSc Project
+                if (MSc_ProjectOn == true)
+                {
+                MSc_Project();
+                }
+                //
+                
+                //Pheromone Injection 
 		if (calibration==false && placement==false)
 		{
 			int leader = 0;
@@ -466,18 +483,7 @@ int main(int argc,char* argv[])
 			/*save positions for later analysis*/
 			logRobotPositions();
 		}
-		if (count % 2 == 0) {
-			for (int i = 0; i < numBots; i++){
-				xPositionBuffer1[i] = client->getX(i);
-				yPositionBuffer1[i] = client->getY(i);
-			}
-		}
-		else {
-			for (int i = 0; i < numBots; i++){
-				xPositionBuffer2[i] = client->getX(i);
-				yPositionBuffer2[i] = client->getY(i);
-			}
-		}
+		
 		
 		
                 
@@ -486,7 +492,7 @@ int main(int argc,char* argv[])
 		
 		image->combinePheromones(pherofield,3,0);		//the last value determines the color channel - 0 is for grayscale, 1 is red etc.
 		gui->drawImage(image);
-        gui->displayTimer(ExpTimer);
+                gui->displayTimer(ExpTimer);
 		
 	
 		//experiment preparation phase 2: draw initial and real robot positions
@@ -496,9 +502,7 @@ int main(int argc,char* argv[])
 			 gui->displayInitialPositions(initX[i],initY[i],initA[i],initBrightness,initRadius+10);
 			 if (client->exists(i) && calibration == false)  gui->displayRobot(client->getX(i)*imageWidth/arenaLength,client->getY(i)*imageHeight/arenaWidth,client->getPhi(i),0,initRadius+10);
 		}
-                
-    	//activate pheromone release function
-		pheroDelayRelease(xPB1_p,xPB2_p,yPB1_p,yPB2_p,isRobotStop_p);
+	
 		/*this chunk of code is used to determine lag*/
 		/*float t = globalTimer.getTime()/1000000.0;	
 		for (int i = 0;i<numBots;i++){
@@ -535,8 +539,8 @@ int main(int argc,char* argv[])
                     Yp = randomY();
                     
                     //MSc Project
-                    //pherofield[0]->Gracircle(1490,550,1,255,330);
-                    pherofield[0]->sharpGradCircle(1490,550,1,255,320,300);
+                    
+                    pherofield[0]->Gracircle(1490,550,1,255,334);
                     //pherofield[0]->clear();
                     //
                     

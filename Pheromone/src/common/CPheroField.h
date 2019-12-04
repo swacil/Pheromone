@@ -34,6 +34,14 @@ public:
 
   /*inject a circle of pheromone*/
   void circle(int x, int y,int id,int num,int radius);
+  
+  //MSc Project
+  /*inject a circle of pheromone with gradient*/
+  void Gracircle(int x, int y,int id,int num,int radius);
+  //
+  
+  void sharpGradCircle(int x, int y,int id,int num,int radius, int radius2);
+  
   /*inject a rectangle of pheromone*/
   void rectangle(int x, int y,int id,int num,int width,int height);
   /*inject pheromone to a given spot*/

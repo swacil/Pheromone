@@ -99,6 +99,58 @@ void CPheroField::circle(int x, int y,int id,int num,int radius)
 		}
 	}
 }
+
+//MSc Project
+//shareGradCircle draws a circle with a small blur on the rim of the circle. radius refers to the radius of the circle including blurry part and radius2 refers to the radius of the circle without blur. 
+// radius > radius2
+void CPheroField::sharpGradCircle(int x, int y,int id,int num,int radius, int radius2)
+{
+    id = id%MAX_ID;
+    int pos = 0;
+    int iix,iiy;
+    for (int ix = -radius;ix<radius+1;ix++){
+		iix = ix +x;
+		for (int iy = -radius;iy<radius+1;iy++){
+			iiy = iy +y;
+			if ((ix*ix)+(iy*iy)<=radius*radius){
+                            if ((ix*ix)+(iy*iy)<=radius2*radius2){
+				pos = (iix+iiy*width);
+				data[pos] += num;
+                            }
+                            else {
+                                pos = (iix+iiy*width);
+                                data[pos] += -num/(radius-radius2) * (sqrt((ix*ix)+(iy*iy))-radius);
+                            }
+			}
+		}
+	}
+}
+
+void CPheroField::Gracircle(int x, int y,int id,int num,int radius)
+{
+    id = id%MAX_ID;
+    int pos = 0;
+    int iix,iiy;
+    int lastradius=0;
+    int kr=0;
+    for (int kp=0;kp<radius+1;kp=kp+1)
+    {
+      kr=num*1.82-kp*1.5;
+      for (int ix = -kp;ix<kp+1;ix++){
+		iix = ix +x;
+		for (int iy = -kp;iy<kp+1;iy++){
+			iiy = iy +y;
+			if ((ix*ix)+(iy*iy)<=kp*kp && (ix*ix)+(iy*iy)>=lastradius*lastradius){
+				pos = (iix+iiy*width);
+				data[pos] = kr;
+			}
+		}
+	}
+     lastradius=kp;
+    }
+}
+//
+
 void CPheroField::rectangle(int x, int y,int id,int num,int a,int b)
 {
     id = id%MAX_ID;
@@ -161,8 +213,9 @@ void CPheroField::wind(float x,float y)
                 cv::Mat kernelY = (cv::Mat_<float>(3,1) << -1.0, 0.0, 1.0);
                 cv::filter2D(mat,matX,-1,kernelX,cv::Point_<int>(-1,-1),0.0);
                 cv::filter2D(mat,matY,-1,kernelY,cv::Point_<int>(-1,-1),0.0);
-                matX = 0.5*matX;
-                matY = 0.5*matY;
+                
+                //matX = 0.5 * matX
+                //matY = 0.5 * matY
                 
                 for (int j = 0; j < width; j++) {
                     for (int i = 0; i < height; i++) {

@@ -45,7 +45,11 @@ bool CTimer::timeOut()
 
 bool CTimer::paused()
 {
-	return (running==false);
+  return (running==false);
+}
+bool CTimer::isRunning()
+{
+  return running;
 }
 
 int CTimer::pause()

@@ -1,0 +1,11 @@
+(step 1)
+open terminal and open the directory \Pheromone\src
+(step 2)
+compile it
+(step 3)
+go to bin folder
+(step 4)
+put
+./phero evaporationTime numRobot windX windY
+(step 5)
+You can change the mode by pressing 1 - no effects, 2 - diffusion effect, 3 - advection effect, 4 - diffusion and advection effects

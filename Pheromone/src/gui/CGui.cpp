@@ -130,6 +130,56 @@ void CGui::displayTimer(CTimer timer)
 	SDL_BlitSurface(text, NULL, screen, &rect);
 	SDL_FreeSurface(text);
 }
+void CGui::displayCalibrationInfo(float camHeight,int numBots,int numVisible,int radius,int refreshTime)
+{
+	/*display calibration patterns in the screen corners*/
+	int oX = 0;
+	int oY = 0;
+	int xx[] = {radius+oX,radius+oX,width-radius-oX,width-radius-oX};
+	int yy[] = {radius+oY,height-radius-oY,radius+oY,height-radius-oY};
+	for (int corner = 0;corner<4;corner++)displayPattern(xx[corner],yy[corner],radius); 
+
+	/*display calibration info*/
+	char info[1000];
+	SDL_Rect rect;				
+	SDL_Surface *text;		
+	int fontSize = 32;
+	rect.x = width/4;
+	rect.y = height/2;
+	rect.w = width/2;
+	rect.h = 24;
+	SDL_Color ok_col = { 0, 0, 255, 0 };
+
+	rect.x = width/4;
+	rect.y = height/2-fontSize;
+	sprintf(info,"Calibrating the localization system - assuming that camera is %.2f m above the screen. GUI refresh: %i ms",camHeight,refreshTime);
+	text = TTF_RenderUTF8_Blended(smallFont, info, ok_col);
+	rect.x =  width/2 - text->w/2; 
+	SDL_BlitSurface(text, NULL, screen, &rect);
+	SDL_FreeSurface(text);
+
+	SDL_Color blue = { 0, 0, 255, 0 };
+	rect.y += fontSize;
+	sprintf(info,"Searching for %i patterns, %i are visible.",numBots,numVisible);
+	if (numVisible == -1){
+		blue.r = 255;
+		blue.g = 50;
+		blue.b = 50;
+		sprintf(info,"NO CONNECTION TO THE LOCALIZATION SYSTEM. Is SwarmCon running ?"); 
+	}
+	text = TTF_RenderUTF8_Blended(smallFont, info, blue);
+	rect.x =  width/2 - text->w/2; 
+	SDL_BlitSurface(text, NULL, screen, &rect);
+	SDL_FreeSurface(text);
+
+	SDL_Color red = { 0, 255, 0, 0 };
+	rect.y += 2*fontSize;
+	sprintf(info,"Place your robots at the designated positions or press P to generate new ones.");
+	text = TTF_RenderUTF8_Blended(smallFont, info, red);
+	rect.x =  width/2 - text->w/2; 
+	SDL_BlitSurface(text, NULL, screen, &rect);
+	SDL_FreeSurface(text);
+}
 
 void CGui::displayPlacementInfo(int numBots,int numVisible)
 {
