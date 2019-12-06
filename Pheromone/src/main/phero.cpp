@@ -37,7 +37,7 @@ int  imageHeight = 1080;	//adjust manually in case of dualMonitor = true, otherw
 
 
 /*---------Adjust the following variables to define your experiment duration, initial conditions etc.------------*/
-int pheroStrength = 50;		//default pheromone strength released by the leader robot
+int pheroStrength = 10;		//default pheromone strength released by the leader robot
 int experimentTime = 180;	//experiment duration is 3 minutes by default
 bool calibration = true;	//re-calibrate the localization system at each start 
 bool placement = true;		//randomly generate initial positions of robots at the experiment start
@@ -58,7 +58,7 @@ int diffKernelSize = 15; // kernel size and sigma must be odd integer numbers
 int diffSigma = 6;
 /*supporting classes and variables*/
 CTimer globalTimer;		//used to terminate the experiment after a given time
-CTimer R1Timer, R2Timer, R3Timer, R4Timer, R5Timer, R6Timer;
+CTimer R1Timer, R2Timer, R3Timer, R4Timer, R5Timer, R6Timer, R7Timer, R8Timer, R9Timer, R10Timer;
 FILE *robotPositionLog = NULL;	//file to log robot positions
 float initX[MAX_ROBOTS];	//initial positions
 float initY[MAX_ROBOTS];	//initial positions
@@ -79,6 +79,7 @@ Uint8 *keys = NULL;
 bool leftMousePressed = false;
 bool rightMousePressed = false;
 bool enterPressed = false;
+bool isExperimentStarted = false;
 bool diffusionOn = false;
 bool advectionOn = false;
 
@@ -98,7 +99,7 @@ bool randomPlacement()
 	int i = 0;
 	globalTimer.reset();
 	globalTimer.start();
-	while (i < numBots)
+	while (i < numBots-4)
 	{
 		//generate position
 		initX[i] = rand()%(imageWidth/2-initBorder*2)+initBorder; // use only the left half of the arena
@@ -134,12 +135,29 @@ int randomY()
     int y = (rand()%(imageHeight-300))+150;
     return y;
 }
-
-void pheroDelayRelease(float * xPB1_p, float * xPB2_p, float * yPB1_p, float * yPB2_p, bool * isRobotStop_p)
-{		
+// Checking if any robot is nearby a robot with id: ID
+bool isRobotNearby(float * xPB1_p, float * yPB1_p, int ID)
+{
+	float xPos = xPB1_p[ID];
+	float yPos = yPB1_p[ID];
+	bool isRobotNear = false;
 	for (int i = 0; i < numBots; i++)
 	{
-		if (xPB1_p[i] == xPB2_p[i] &&  yPB1_p[i] == yPB2_p[i])
+		if (i != ID && client->getID(i) != -1 && client->getID(i) != 1) 
+		{
+			if (fabs(xPos - client->getX(i)) < 0.09 && fabs(yPos - client->getY(i)) < 0.09){
+				isRobotNear = true;
+			}
+		}
+	}
+	return isRobotNear;
+}
+void pheroDelayRelease(float * xPB1_p, float * xPB2_p, float * yPB1_p, float * yPB2_p, bool * isRobotStop_p, bool isExperimentStarted)
+{		
+	for (int i = 0; i < numBots; i++)
+	{	
+		bool isRobotNear = isRobotNearby(xPB1_p,yPB1_p,i);
+		if (fabs(xPB1_p[i] - xPB2_p[i]) <= 0.001 &&  fabs(yPB1_p[i] - yPB2_p[i]) <= 0.001)
 		{
 			switch(i){
 				case 0:
@@ -148,69 +166,103 @@ void pheroDelayRelease(float * xPB1_p, float * xPB2_p, float * yPB1_p, float * y
 					// 	R1Timer.start();
 					// 	isRobotStop_p[i] = false;
 					// }
-					if (R1Timer.getTime() >= 10000000){
+					if (R1Timer.getTime() >= 2000000){
 						isRobotStop_p[i] = true;
 					}
 					else {
 						if (R1Timer.isRunning() == false){
-							R1Timer.reset();
-							R1Timer.start();
+							R1Timer.restart();
 						}
 							isRobotStop_p[i] = false;
 					}
 				case 1:
-					if (R2Timer.getTime() >= 10000000){
+					if (R2Timer.getTime() >= 2000000){
 						isRobotStop_p[i] = true;
 					}
 					else {
 						if (R2Timer.isRunning() == false){
-							R2Timer.reset();
-							R2Timer.start();
+							R2Timer.restart();
 						}
 							isRobotStop_p[i] = false;
 					}
 				case 2:
-					if (R3Timer.getTime() >= 10000000){
+					if (R3Timer.getTime() >= 2000000){
 						isRobotStop_p[i] = true;
 					}
 					else {
 						if (R3Timer.isRunning() == false){
-							R3Timer.reset();
-							R3Timer.start();
+							R3Timer.restart();
 						}
 							isRobotStop_p[i] = false;
 					}
 				case 3:
-					if (R4Timer.getTime() >= 10000000){
+					if (R4Timer.getTime() >= 2000000){
 						isRobotStop_p[i] = true;
 					}
 					else {
 						if (R4Timer.isRunning() == false){
-							R4Timer.reset();
-							R4Timer.start();
+							R4Timer.restart();
 						}
 							isRobotStop_p[i] = false;
 
 					}
 				case 4:
-					if (R5Timer.getTime() >= 10000000){
+					if (R5Timer.getTime() >= 2000000){
 						isRobotStop_p[i] = true;
 					}
 					else {
 						if (R5Timer.isRunning() == false){
-							R5Timer.reset();
-							R5Timer.start();
+							R5Timer.restart();
 						}
 							isRobotStop_p[i] = false;
 					}
 				case 5:
-					if (R6Timer.getTime() >= 10000000){
+					if (R6Timer.getTime() >= 2000000){
 						isRobotStop_p[i] = true;
 					}
 					else {
 						if (R6Timer.isRunning() == false){
-							R6Timer.reset();
-							R6Timer.start();
+							R6Timer.restart();
+						}
+							isRobotStop_p[i] = false;
+					}
+				case 6:
+					if (R7Timer.getTime() >= 2000000){
+						isRobotStop_p[i] = true;
+					}
+					else {
+						if (R7Timer.isRunning() == false){
+							R7Timer.restart();
+						}
+							isRobotStop_p[i] = false;
+					}
+				case 7:
+					if (R8Timer.getTime() >= 2000000){
+						isRobotStop_p[i] = true;
+					}
+					else {
+						if (R8Timer.isRunning() == false){
+							R8Timer.restart();
+						}
+							isRobotStop_p[i] = false;
+					}
+				case 8:
+					if (R9Timer.getTime() >= 2000000){
+						isRobotStop_p[i] = true;
+					}
+					else {
+						if (R9Timer.isRunning() == false){
+							R9Timer.restart();
+						}
+							isRobotStop_p[i] = false;
+					}
+				case 9:
+					if (R10Timer.getTime() >= 2000000){
+						isRobotStop_p[i] = true;
+					}
+					else {
+						if (R10Timer.isRunning() == false){
+							R10Timer.restart();
 						}
 							isRobotStop_p[i] = false;
 					}
@@ -229,14 +281,44 @@ void pheroDelayRelease(float * xPB1_p, float * xPB2_p, float * yPB1_p, float * y
 		}
 		else {
 				isRobotStop_p[i] = false;
+				switch(i){
+				case 0:
+					R1Timer.reset();
+					R1Timer.paused();
+				case 1:
+					R2Timer.reset();
+					R2Timer.paused();
+				case 2:
+					R3Timer.reset();
+					R3Timer.paused();
+				case 3:
+					R4Timer.reset();
+					R4Timer.paused();
+				case 4:
+					R5Timer.reset();
+					R5Timer.paused();
+				case 5:
+					R6Timer.reset();
+					R6Timer.paused();
+				case 6:
+					R7Timer.reset();
+					R7Timer.paused();
+				case 7:
+					R8Timer.reset();
+					R8Timer.paused();
+				case 8:
+					R9Timer.reset();
+					R9Timer.paused();
+				case 9:
+					R10Timer.reset();
+					R10Timer.paused();
+				}
 		}
 		
-    	if (client->getID(i) != -1 && client->getID(i) != 1 && isRobotStop_p[i] == true){
-
-			pherofield[0]->addTo(client->getX(i)*imageWidth/arenaLength,client->getY(i)*imageHeight/arenaWidth,i,pheroStrength);                    
-        
+    	if (client->getID(i) != -1 && client->getID(i) != 1 && isRobotStop_p[i] == true && isRobotNear == true && isExperimentStarted == true){
+				pherofield[0]->add(client->getX(i)*imageWidth/arenaLength,client->getY(i)*imageHeight/arenaWidth,i,pheroStrength,35);                    
 		}
-		printf("R1Timer: %8f, is timer running? : %d\n", R1Timer.getTime(),R1Timer.isRunning());
+		printf("R1Timer: %d, is timer running? : %d\n", R1Timer.getTime(),R1Timer.isRunning());
     }   
 }
     
@@ -356,7 +438,7 @@ int main(int argc,char* argv[])
 	image = new CRawImage(imageWidth,imageHeight);
 
 	//read number of robots and pheromone half-life from the command line
-	numBots = atoi(argv[2]);
+	numBots = atoi(argv[2])+4;
 	float evaporation = atof(argv[1]);
     windX = atoi(argv[3]);
     windY = atoi(argv[4]);
@@ -466,22 +548,22 @@ int main(int argc,char* argv[])
 			/*save positions for later analysis*/
 			logRobotPositions();
 		}
-		if (count % 2 == 0) {
-			for (int i = 0; i < numBots; i++){
-				xPositionBuffer1[i] = client->getX(i);
-				yPositionBuffer1[i] = client->getY(i);
-			}
-		}
-		else {
-			for (int i = 0; i < numBots; i++){
-				xPositionBuffer2[i] = client->getX(i);
-				yPositionBuffer2[i] = client->getY(i);
-			}
-		}
-		
-		
-                
-                
+		//If you try pheromone system without pheromone adding, please 
+		 if (count % 2 == 0) {
+		 	for (int i = 0; i < numBots; i++){
+		 		xPositionBuffer1[i] = client->getX(i);
+		 		yPositionBuffer1[i] = client->getY(i);
+		 	}
+		 }
+		 else {
+		 	for (int i = 0; i < numBots; i++){
+		 		xPositionBuffer2[i] = client->getX(i);
+		 		yPositionBuffer2[i] = client->getY(i);
+		 	}
+		 }
+		 //activate pheromone release function
+		 pheroDelayRelease(xPB1_p,xPB2_p,yPB1_p,yPB2_p,isRobotStop_p, isExperimentStarted);
+       
 		//convert the pheromone field to grayscale image
 		
 		image->combinePheromones(pherofield,3,0);		//the last value determines the color channel - 0 is for grayscale, 1 is red etc.
@@ -497,8 +579,7 @@ int main(int argc,char* argv[])
 			 if (client->exists(i) && calibration == false)  gui->displayRobot(client->getX(i)*imageWidth/arenaLength,client->getY(i)*imageHeight/arenaWidth,client->getPhi(i),0,initRadius+10);
 		}
                 
-    	//activate pheromone release function
-		pheroDelayRelease(xPB1_p,xPB2_p,yPB1_p,yPB2_p,isRobotStop_p);
+    	
 		/*this chunk of code is used to determine lag*/
 		/*float t = globalTimer.getTime()/1000000.0;	
 		for (int i = 0;i<numBots;i++){
@@ -542,7 +623,7 @@ int main(int argc,char* argv[])
                     
                     //pherofield[0]->circle(1490,550,1,255,309); // 255pixel == 12.5cm
                     //pherofield[0]->rectangle(990,330,1,255,825,165); //width 40cm height 8 cm (1cm == 20.625 pixels)
-                    
+                    isExperimentStarted = true;
                     enterPressed = false;
                     
                     

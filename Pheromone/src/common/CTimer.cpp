@@ -64,3 +64,10 @@ int CTimer::start()
   running = true;
   return getTime();
 }
+void CTimer::restart(int timeOut) // reset and start
+{
+  timeoutInterval = timeOut;
+  startTime = getRealTime();
+  pauseTime = startTime;
+  running = true;
+}

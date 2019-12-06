@@ -26,6 +26,7 @@ void CPheroField::clear()
 	memset(data,0,size*sizeof(float));
 }
 
+// Good for trail
 void CPheroField::addTo(int x, int y,int id,int num,int radius)
 {
 	id = id%MAX_ID;

@@ -23,6 +23,7 @@ class CTimer
 		void reset(int timeOut = TIMEOUT_INTERVAL);
 		int pause();
 		int start();
+		void restart(int timeOut = TIMEOUT_INTERVAL);
 
 		/*was there a timeout ?*/
 		bool timeOut();
@@ -30,7 +31,7 @@ class CTimer
 		/*is the timer running ?*/
 		bool paused();
 		int64_t getRealTime();
-                bool isRunning();
+        bool isRunning();
 	private:
 		int startTime;
 		int pauseTime;
