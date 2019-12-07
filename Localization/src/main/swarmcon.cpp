@@ -310,7 +310,6 @@ int main(int argc,char* argv[])
 	//process arguments
 	camera->init(argv[1],&imageWidth,&imageHeight,saveVideo);
 	camera->loadConfig("../etc/camera.cfg");
-        
 
 	//determine gui size so that it fits the screen
 	while (imageHeight/guiScale > screenHeight || imageHeight/guiScale > screenWidth) guiScale = guiScale*2;

@@ -69,7 +69,7 @@ int CCamera::init(const char *deviceName,int *wi,int *he,bool saveI)
 	format = V4L2_PIX_FMT_MJPEG;
 
 	if (save) videoIn->toggleAvi = 1; else videoIn->toggleAvi = 0;
-	const float fps = 10.0;
+	const float fps = 30.0;
 	const int grabemethod = 1; 
 
 	time_t timeNow;
