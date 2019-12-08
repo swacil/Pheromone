@@ -135,6 +135,7 @@ int randomY()
     int y = (rand()%(imageHeight-300))+150;
     return y;
 }
+
 // Checking if any robot is nearby a robot with id: ID
 bool isRobotNearby(float * xPB1_p, float * yPB1_p, int ID)
 {
@@ -143,7 +144,7 @@ bool isRobotNearby(float * xPB1_p, float * yPB1_p, int ID)
 	bool isRobotNear = false;
 	for (int i = 0; i < numBots; i++)
 	{
-		if (i != ID && client->getID(i) != -1 && client->getID(i) != 1) 
+		if (i != ID && client->getID(i) != -1 && client->getID(i) != 1 && client->exists(i)) 
 		{
 			if (fabs(xPos - client->getX(i)) < 0.09 && fabs(yPos - client->getY(i)) < 0.09){
 				isRobotNear = true;
@@ -152,6 +153,7 @@ bool isRobotNearby(float * xPB1_p, float * yPB1_p, int ID)
 	}
 	return isRobotNear;
 }
+
 void pheroDelayRelease(float * xPB1_p, float * xPB2_p, float * yPB1_p, float * yPB2_p, bool * isRobotStop_p, bool isExperimentStarted)
 {		
 	for (int i = 0; i < numBots; i++)
