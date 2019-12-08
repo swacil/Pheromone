@@ -434,7 +434,7 @@ int main(int argc,char* argv[])
 				}
 				moveOne = moveVal; 
 			}else{
-				if (moveOne-- < -100) moveOne = moveVal;
+				if (moveOne-- < -10) moveOne = moveVal;
 			}
 		}
 
