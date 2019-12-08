@@ -154,12 +154,14 @@ bool isRobotNearby(float * xPB1_p, float * yPB1_p, int ID)
 	return isRobotNear;
 }
 
-void pheroDelayRelease(float * xPB1_p, float * xPB2_p, float * yPB1_p, float * yPB2_p, bool * isRobotStop_p, bool isExperimentStarted)
+void pheroDelayRelease(float * xPB1_p, float * xPB2_p, float * yPB1_p, float * yPB2_p, float * phiPB1_p, float * phiPB2_p, bool * isRobotStop_p, bool isExperimentStarted)
 {		
 	for (int i = 0; i < numBots; i++)
 	{	
 		bool isRobotNear = isRobotNearby(xPB1_p,yPB1_p,i);
-		if (fabs(xPB1_p[i] - xPB2_p[i]) <= 0.001 &&  fabs(yPB1_p[i] - yPB2_p[i]) <= 0.001)
+		float angleDiff = fabs(phiPB1_p[i] - phiPB2_p[i]);
+		if (angleDiff > M_PI) angleDiff = 2*M_PI-angleDiff;
+		if (fabs(xPB1_p[i] - xPB2_p[i]) <= 0.001 &&  fabs(yPB1_p[i] - yPB2_p[i]) <= 0.001 && angleDiff < 0.1)
 		{
 			switch(i){
 				case 0:
@@ -469,17 +471,24 @@ int main(int argc,char* argv[])
 	float xPositionBuffer2[numBots];
 	float yPositionBuffer1[numBots];
 	float yPositionBuffer2[numBots];
+	float phiPositionBuffer1[numBots];
+	float phiPositionBuffer2[numBots];
 	// Declare pointer variables for the buffers
 	float *xPB1_p = xPositionBuffer1;
 	float *xPB2_p = xPositionBuffer2;
 	float *yPB1_p = yPositionBuffer1;
 	float *yPB2_p = yPositionBuffer2;
+	float *phiPB1_p = phiPositionBuffer1;
+	float *phiPB2_p = phiPositionBuffer2;
+
 	for (int i = 0; i < numBots; i++)
 	{
-    	xPositionBuffer1[i] = 0; // initialization of arrays
+		xPositionBuffer1[i] = 0; // initialization of arrays
 		xPositionBuffer2[i] = 0;
 		yPositionBuffer1[i] = 0;
 		yPositionBuffer2[i] = 0;
+		phiPositionBuffer1[i] = 0;
+		phiPositionBuffer2[i] = 0;
 	}   
 	bool isRobotStop[numBots];
 	bool* isRobotStop_p = isRobotStop;
@@ -555,16 +564,17 @@ int main(int argc,char* argv[])
 		 	for (int i = 0; i < numBots; i++){
 		 		xPositionBuffer1[i] = client->getX(i);
 		 		yPositionBuffer1[i] = client->getY(i);
+		 		phiPositionBuffer1[i] = client->getPhi(i);
 		 	}
-		 }
-		 else {
+		 } else {
 		 	for (int i = 0; i < numBots; i++){
 		 		xPositionBuffer2[i] = client->getX(i);
 		 		yPositionBuffer2[i] = client->getY(i);
+		 		phiPositionBuffer2[i] = client->getPhi(i);
 		 	}
 		 }
 		 //activate pheromone release function
-		 pheroDelayRelease(xPB1_p,xPB2_p,yPB1_p,yPB2_p,isRobotStop_p, isExperimentStarted);
+		 pheroDelayRelease(xPB1_p,xPB2_p,yPB1_p,yPB2_p,phiPB1_p,phiPB2_p,isRobotStop_p, isExperimentStarted);
        
 		//convert the pheromone field to grayscale image
 		
