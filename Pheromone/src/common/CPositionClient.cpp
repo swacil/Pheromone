@@ -79,7 +79,7 @@ int CPositionClient::checkForData()
 			{
 				if (strncmp(token,"Robot",5)==0){
 					sscanf(token,"Robot %i %f %f %f %ld \n",&id,&x,&y,&phi,&detectTime);
-                                       printf("Robot %i %f %f %f %ld \n",id,x,y,phi,detectTime);
+					printf("Robot %i %f %f %f %ld \n",id,x,y,phi,detectTime);
 					if (id >=0 && id < MAX_POSITIONS){
 						xArray[robotOrder] = x;
 						yArray[robotOrder] = y;
@@ -90,9 +90,10 @@ int CPositionClient::checkForData()
 					}
 				}
 				else if (strncmp(token,"Detected",6)==0){
-				       	sscanf(token,"Detected %i of %i at %ld. \n",&numDetected,&numSearched,&frameTime);
-                                       // printf("Detected %i of %i at %ld. \n",numDetected,numSearched,frameTime);
+					sscanf(token,"Detected %i of %i at %ld. \n",&numDetected,&numSearched,&frameTime);
+					// printf("Detected %i of %i at %ld. \n",numDetected,numSearched,frameTime);
 					robotOrder=0;
+					if (id >=0 && id < MAX_POSITIONS) vArray[id] = false;
 					updates++;
 				}
 				else if (strncmp(token,"Calibrated",11)==0) calibrated = true;
