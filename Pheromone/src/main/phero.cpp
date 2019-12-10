@@ -144,7 +144,7 @@ bool isRobotNearby(float * xPB1_p, float * yPB1_p, int ID)
 	bool isRobotNear = false;
 	for (int i = 0; i < numBots; i++)
 	{
-		if (i != ID && client->getID(i) != -1 && client->getID(i) != 1 && client->exists(i)) 
+		if (i != ID && client->getID(i) != -1 && client->getID(i) != 1 && client->exists(i) && client->exists(ID))//TODO TOMK what is the getID() != 1 for? try removing the client->exists() conditions
 		{
 			if (fabs(xPos - client->getX(i)) < 0.09 && fabs(yPos - client->getY(i)) < 0.09){
 				isRobotNear = true;
@@ -161,7 +161,7 @@ void pheroDelayRelease(float * xPB1_p, float * xPB2_p, float * yPB1_p, float * y
 		bool isRobotNear = isRobotNearby(xPB1_p,yPB1_p,i);
 		float angleDiff = fabs(phiPB1_p[i] - phiPB2_p[i]);
 		if (angleDiff > M_PI) angleDiff = 2*M_PI-angleDiff;
-		if (fabs(xPB1_p[i] - xPB2_p[i]) <= 0.001 &&  fabs(yPB1_p[i] - yPB2_p[i]) <= 0.001 && angleDiff < 0.1)
+		if (fabs(xPB1_p[i] - xPB2_p[i]) <= 0.001 &&  fabs(yPB1_p[i] - yPB2_p[i]) <= 0.001 && angleDiff < 0.1)//TODO TOMK try removing the angleDiff condition
 		{
 			switch(i){
 				case 0:
