@@ -37,7 +37,7 @@ int  imageHeight = 1080;	//adjust manually in case of dualMonitor = true, otherw
 
 
 /*---------Adjust the following variables to define your experiment duration, initial conditions etc.------------*/
-int pheroStrength = 10;		//default pheromone strength released by the leader robot
+int pheroStrength = 7;		//default pheromone strength released by the leader robot
 int experimentTime = 180;	//experiment duration is 3 minutes by default
 bool calibration = true;	//re-calibrate the localization system at each start 
 bool placement = true;		//randomly generate initial positions of robots at the experiment start
@@ -164,7 +164,7 @@ void pheroDelayRelease(float * xPB1_p, float * xPB2_p, float * yPB1_p, float * y
 		if (fabs(xPB1_p[i] - xPB2_p[i]) <= 0.001 &&  fabs(yPB1_p[i] - yPB2_p[i]) <= 0.001 && angleDiff < 0.1)//TODO TOMK try removing the angleDiff condition
 		{
 			switch(i){
-				case 0:
+				case 0:{
 					// if (R1Timer.isRunning() == false) {
 					// 	R1Timer.reset();
 					// 	R1Timer.start();
@@ -174,102 +174,112 @@ void pheroDelayRelease(float * xPB1_p, float * xPB2_p, float * yPB1_p, float * y
 						isRobotStop_p[i] = true;
 					}
 					else {
-						if (R1Timer.isRunning() == false){
+						if (R1Timer.isRunning() == false && isRobotNear == true){ // timer starts when neighbor is nearby. 
 							R1Timer.restart();
 						}
 							isRobotStop_p[i] = false;
 					}
-				case 1:
+					break;}
+				case 1:{
 					if (R2Timer.getTime() >= 2000000){
 						isRobotStop_p[i] = true;
 					}
 					else {
-						if (R2Timer.isRunning() == false){
+						if (R2Timer.isRunning() == false && isRobotNear == true){
 							R2Timer.restart();
 						}
 							isRobotStop_p[i] = false;
 					}
-				case 2:
+					break;}
+				case 2:{
 					if (R3Timer.getTime() >= 2000000){
 						isRobotStop_p[i] = true;
 					}
 					else {
-						if (R3Timer.isRunning() == false){
+						if (R3Timer.isRunning() == false && isRobotNear == true){
 							R3Timer.restart();
 						}
 							isRobotStop_p[i] = false;
 					}
-				case 3:
-					if (R4Timer.getTime() >= 2000000){
+					break;}
+				case 3:{
+					if (R4Timer.getTime() >= 2000000 ){
 						isRobotStop_p[i] = true;
 					}
 					else {
-						if (R4Timer.isRunning() == false){
+						if (R4Timer.isRunning() == false && isRobotNear == true){
 							R4Timer.restart();
 						}
 							isRobotStop_p[i] = false;
 
 					}
-				case 4:
+					break;}
+				case 4:{
 					if (R5Timer.getTime() >= 2000000){
 						isRobotStop_p[i] = true;
 					}
 					else {
-						if (R5Timer.isRunning() == false){
+						if (R5Timer.isRunning() == false && isRobotNear == true){
 							R5Timer.restart();
 						}
 							isRobotStop_p[i] = false;
 					}
-				case 5:
+					break;}
+				case 5:{
 					if (R6Timer.getTime() >= 2000000){
 						isRobotStop_p[i] = true;
 					}
 					else {
-						if (R6Timer.isRunning() == false){
+						if (R6Timer.isRunning() == false && isRobotNear == true){
 							R6Timer.restart();
 						}
 							isRobotStop_p[i] = false;
 					}
-				case 6:
+					break;}
+				case 6:{
 					if (R7Timer.getTime() >= 2000000){
 						isRobotStop_p[i] = true;
 					}
 					else {
-						if (R7Timer.isRunning() == false){
+						if (R7Timer.isRunning() == false && isRobotNear == true){
 							R7Timer.restart();
 						}
 							isRobotStop_p[i] = false;
 					}
-				case 7:
+					break;}
+				case 7:{
 					if (R8Timer.getTime() >= 2000000){
 						isRobotStop_p[i] = true;
 					}
 					else {
-						if (R8Timer.isRunning() == false){
+						if (R8Timer.isRunning() == false && isRobotNear == true){
 							R8Timer.restart();
 						}
 							isRobotStop_p[i] = false;
 					}
-				case 8:
+					break;}
+				case 8:{
 					if (R9Timer.getTime() >= 2000000){
 						isRobotStop_p[i] = true;
 					}
 					else {
-						if (R9Timer.isRunning() == false){
+						if (R9Timer.isRunning() == false && isRobotNear == true){
 							R9Timer.restart();
 						}
 							isRobotStop_p[i] = false;
 					}
-				case 9:
+					break;}
+				case 9:{
 					if (R10Timer.getTime() >= 2000000){
 						isRobotStop_p[i] = true;
 					}
 					else {
-						if (R10Timer.isRunning() == false){
+						if (R10Timer.isRunning() == false && isRobotNear == true){
 							R10Timer.restart();
 						}
 							isRobotStop_p[i] = false;
 					}
+					break;}
 					// if (R6Timer.getTime() >= 2000000)
 					// 	isRobotStop_p[i] = true;
 					// else {
@@ -286,44 +296,90 @@ void pheroDelayRelease(float * xPB1_p, float * xPB2_p, float * yPB1_p, float * y
 		else {
 				isRobotStop_p[i] = false;
 				switch(i){
-				case 0:
+				case 0:{
 					R1Timer.reset();
-					R1Timer.paused();
-				case 1:
+					R1Timer.pause();
+					break;}
+				case 1:{
 					R2Timer.reset();
-					R2Timer.paused();
-				case 2:
+					R2Timer.pause();
+					break;}
+				case 2:{
 					R3Timer.reset();
-					R3Timer.paused();
-				case 3:
+					R3Timer.pause();
+					break;}
+				case 3:{
 					R4Timer.reset();
-					R4Timer.paused();
-				case 4:
+					R4Timer.pause();
+					break;}
+				case 4:{
 					R5Timer.reset();
-					R5Timer.paused();
-				case 5:
+					R5Timer.pause();
+					break;}
+				case 5:{
 					R6Timer.reset();
-					R6Timer.paused();
-				case 6:
+					R6Timer.pause();
+					break;}
+				case 6:{
 					R7Timer.reset();
-					R7Timer.paused();
-				case 7:
+					R7Timer.pause();
+					break;}
+				case 7:{
 					R8Timer.reset();
-					R8Timer.paused();
-				case 8:
+					R8Timer.pause();
+					break;}
+				case 8:{
 					R9Timer.reset();
-					R9Timer.paused();
-				case 9:
+					R9Timer.pause();
+					break;}
+				case 9:{
 					R10Timer.reset();
-					R10Timer.paused();
+					R10Timer.pause();
+					break;}
 				}
 		}
-		
-    	if (client->getID(i) != -1 && client->getID(i) != 1 && isRobotStop_p[i] == true && isRobotNear == true && isExperimentStarted == true){
-				pherofield[0]->add(client->getX(i)*imageWidth/arenaLength,client->getY(i)*imageHeight/arenaWidth,i,pheroStrength,35);                    
+		// ID:7 is misdetected ID.
+    	if (client->getID(i) != 7 && client->getX(i) >= 0.1  && client->getX(i) <= 0.85 && isRobotStop_p[i] == true && isExperimentStarted == true){
+			pherofield[0]->add(client->getX(i)*imageWidth/arenaLength,client->getY(i)*imageHeight/arenaWidth,i,pheroStrength,52); // 63 pixels - 3cm                    
+			
 		}
-		printf("R1Timer: %d, is timer running? : %d\n", R1Timer.getTime(),R1Timer.isRunning());
-    }   
+		printf("Index i: %d\n", i); // checking index i 
+		printf("ID : %d, x: %f y: %f, stop?: %d, near Robot?: %d\n", client->getID(i), client->getX(i), client->getY(i), isRobotStop_p[i], isRobotNear); // checking ID and its status. 
+		//check timer for each ID
+		switch(i){
+				case 0:{
+					printf("R1Timer: %d, is timer running? : %d\n", R1Timer.getTime(),R1Timer.isRunning());
+					break;}
+				case 1:{
+					printf("R2Timer: %d, is timer running? : %d\n", R2Timer.getTime(),R2Timer.isRunning());
+					break;}
+				case 2:{
+					printf("R3Timer: %d, is timer running? : %d\n", R3Timer.getTime(),R3Timer.isRunning());
+					break;}
+				case 3:{
+					printf("R4Timer: %d, is timer running? : %d\n", R4Timer.getTime(),R4Timer.isRunning());
+					break;}
+				case 4:{
+					printf("R5Timer: %d, is timer running? : %d\n", R5Timer.getTime(),R5Timer.isRunning());
+					break;}
+				case 5:{
+					printf("R6Timer: %d, is timer running? : %d\n", R6Timer.getTime(),R6Timer.isRunning());
+					break;}
+				case 6:{
+					printf("R7Timer: %d, is timer running? : %d\n", R7Timer.getTime(),R7Timer.isRunning());
+					break;}
+				case 7:{
+					printf("R8Timer: %d, is timer running? : %d\n", R8Timer.getTime(),R8Timer.isRunning());
+					break;}
+				case 8:{
+					printf("R9Timer: %d, is timer running? : %d\n", R9Timer.getTime(),R9Timer.isRunning());
+					break;}
+				case 9:{
+					printf("R10Timer: %d, is timer running? : %d\n", R10Timer.getTime(),R10Timer.isRunning());
+					break;}
+				}
+	}
+
 }
     
 /*process mouse and keyboard events coming from the GUI*/
