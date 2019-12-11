@@ -144,7 +144,7 @@ bool isRobotNearby(float * xPB1_p, float * yPB1_p, int ID)
 	bool isRobotNear = false;
 	for (int i = 0; i < numBots; i++)
 	{
-		if (i != ID && client->getID(i) != -1 && client->getID(i) != 1 && client->exists(i) && client->exists(ID))//TODO TOMK what is the getID() != 1 for? try removing the client->exists() conditions
+		if (i != ID && client->exists(i) && client->exists(ID))//TODO TOMK what is the getID() != 1 for? try removing the client->exists() conditions // SEONGIN I removed getID()
 		{
 			if (fabs(xPos - client->getX(i)) < 0.09 && fabs(yPos - client->getY(i)) < 0.09){
 				isRobotNear = true;
