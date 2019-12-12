@@ -202,6 +202,17 @@ bool initializeLogging()
 	}
 	return true;
 }
+
+void recalibrateIDs()
+{
+	FILE *idFile = fopen("../etc/ID.txt","w");
+	for (int i = 0;i<numBots;i++)
+	{
+		if (currentSegmentArray[i].ID >= 0) fprintf(idFile,"%i %.3f %.3f\n",currentSegmentArray[i].ID,currentSegmentArray[i].r0,currentSegmentArray[i].r1);
+	}	
+	fclose(idFile);
+}
+
 /*process events coming from GUI*/
 void processKeys()
 {
@@ -233,6 +244,7 @@ void processKeys()
 	if (keys[SDLK_m] && lastKeys[SDLK_m] == false) printf("SAVE %03f %03f %03f %03f %03f %03f %03f\n",objectArray[0].x,objectArray[0].y,objectArray[0].z,objectArray[0].error,objectArray[0].d,currentSegmentArray[0].m0,currentSegmentArray[0].m1);
 	if (keys[SDLK_n] && lastKeys[SDLK_n] == false) printf("SEGM %03f %03f %03f\n",currentSegmentArray[0].x,currentSegmentArray[0].y,currentSegmentArray[0].m0);
 	if (keys[SDLK_s] && lastKeys[SDLK_s] == false) image->saveBmp();
+	if (keys[SDLK_i] && lastKeys[SDLK_i] == false) recalibrateIDs();
 
 	//initiate autocalibration (searches for 4 outermost circular patterns and uses them to establisht the coordinate system)
 	if (keys[SDLK_a] && lastKeys[SDLK_a] == false) { calibStep = 0; lastTransformType=trans->transformType; wasBots = numBots; autocalibrate = true;trans->transformType=TRANSFORM_NONE;}; 

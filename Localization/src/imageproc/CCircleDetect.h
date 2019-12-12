@@ -94,7 +94,9 @@ class CCircleDetect
 		static int maskNum;
 		float idx[MAX_PATTERNS];
 		float idy[MAX_PATTERNS];
+		int possibleID[MAX_PATTERNS+1];
 		int numberIDs;
+		float minIDDistance;
 };
 
 #endif

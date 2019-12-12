@@ -208,21 +208,33 @@ void CCircleDetect::bufferCleanup(SSegment init)
 int CCircleDetect::loadCircleID(const char* id)
 {
 	FILE* idFile = fopen(id,"r");
-	int dummy = 0;
+	int dI = 0;
+	float dX = 0;
+	float dY = 0;
 	numberIDs=0;
 	if (idFile == NULL)
 	{
 		fprintf(stderr,"ID file not found\n");
 		return -2;
 	}
+	for (int i = 0;i<MAX_PATTERNS;i++) idx[i] = idy[i] = 2.1;
+	numberIDs = 0;
 	while(feof(idFile)==0){
-		fscanf(idFile,"%i %f %f\n",&dummy,&idx[numberIDs],&idy[numberIDs]);
-		if (dummy != numberIDs){
-			fprintf(stderr,"ID file corrupted\n");
-			fclose(idFile);
-			return -1;
+		fscanf(idFile,"%i %f %f\n",&dI,&dX,&dY);
+		idx[dI]=dX;
+		idy[dI]=dY;
+		if (dI+1 > numberIDs) numberIDs = dI+1;
+	}
+	minIDDistance = 10.0;
+	for (int i = 0;i<MAX_PATTERNS;i++){
+		possibleID[i] = 0;
+		for (int j = 0;j<MAX_PATTERNS;j++){
+			if (i!=j && idx[i] < 2.0 && idx[i] < 2.0){
+				float dx = idx[i]-idx[j];
+				float dy = idy[i]-idy[j];
+				if (minIDDistance > sqrt(dx*dx+dy*dy)) minIDDistance = sqrt(dx*dx+dy*dy);
+			}	
 		}
-		numberIDs++;
 	}
 	fclose(idFile);
 	return 0;
@@ -230,6 +242,12 @@ int CCircleDetect::loadCircleID(const char* id)
 
 void CCircleDetect::identifySegment(SSegment* segment)
 {
+	/*reset ID information*/
+	if (lastTrackOK == false){
+		for (int i = 0;i<numberIDs+1;i++) possibleID[i] = 0;
+	}
+
+	/*find the most likely ID*/
 	float maxDistance = 1000;
 	int index = -1;
 	float dx,dy;
@@ -237,14 +255,25 @@ void CCircleDetect::identifySegment(SSegment* segment)
 	{
 		dx = segment->r0-idx[i];
 		dy = segment->r1-idy[i];
-		if (dx*dx+dy*dy < maxDistance)
+		if (sqrt(dx*dx+dy*dy) < maxDistance)
 		{
-			maxDistance = dx*dx+dy*dy;
+			maxDistance = sqrt(dx*dx+dy*dy);
 			index = i;
 		}
 	}
-	segment->ID = index;
-	if (segment->m1/segment->m0 > 0.9) segment->ID = -1;
+	if (segment->m1/segment->m0 > 0.9) index = -1;
+	possibleID[index+1]++;
+
+	/*retrieve ID*/
+	int maxID = 0;	
+	for (int i=0;i<numberIDs+1;i++){
+		if (possibleID[i] > maxID){
+		       	maxID = possibleID[i];
+			index = i;
+		}
+	}
+	segment->ID = index -1;
+	//printf("ID: %i %.3f %.3f %.3f %.3f\n",segment->ID,segment->r0,segment->r1,segment->m0,segment->m1);
 }
 
 void CCircleDetect::clearCalibMask()
