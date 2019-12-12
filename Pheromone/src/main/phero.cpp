@@ -99,7 +99,7 @@ bool randomPlacement()
 	int i = 0;
 	globalTimer.reset();
 	globalTimer.start();
-	while (i < numBots-4)
+	while (i < numBots)
 	{
 		//generate position
 		initX[i] = rand()%(imageWidth/2-initBorder*2)+initBorder; // use only the left half of the arena
@@ -180,7 +180,7 @@ void pheroDelayRelease(float * xPB1_p, float * xPB2_p, float * yPB1_p, float * y
 			robotTimer[i].pause();
 		}
 		// ID:7 is misdetected ID.
-		if (client->getID(i) != 7 && client->getX(i) >= 0.1  && client->getX(i) <= 0.85 && isRobotStop_p[i] == true && isExperimentStarted == true){
+		if (client->getID(i) != 7 && client->getX(i) >= 0.1  && client->getX(i) <= 0.9 && isRobotStop_p[i] == true && isExperimentStarted == true){
 			pherofield[0]->add(client->getX(i)*imageWidth/arenaLength,client->getY(i)*imageHeight/arenaWidth,i,pheroStrength,52); // 63 pixels - 3cm                    
 
 		}
@@ -308,7 +308,7 @@ int main(int argc,char* argv[])
 	image = new CRawImage(imageWidth,imageHeight);
 
 	//read number of robots and pheromone half-life from the command line
-	numBots = atoi(argv[2])+4;
+	numBots = atoi(argv[2]);
 	float evaporation = atof(argv[1]);
     windX = atoi(argv[3]);
     windY = atoi(argv[4]);
