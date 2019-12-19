@@ -83,9 +83,8 @@ bool isExperimentStarted = false;
 bool diffusionOn = false;
 bool advectionOn = false;
 
-//MSc Project
-bool MSc_ProjectOn = false;
-//
+// Pheromone Release on or off
+bool isPheromoneExp = false;
 
 /*CTRL-C handler*/
 void ctrl_c_handler(int a)
@@ -244,14 +243,14 @@ void processEvents()
 	if (keys[SDLK_s] && lastKeys[SDLK_s] == false) image->saveBmp();
 	memcpy(lastKeys,keys,keyNumber);
         //experiment settings ( 1 - no effects, 2 - diffusion only, 3 - advection only, 4 - both effects)
-        if (keys[SDLK_RETURN] && lastKeys[SDLK_RETURN] == true) enterPressed = true; //pheromone circle regeneration
+        if (keys[SDLK_RETURN]) enterPressed = true; //pheromone circle regeneration
         if (keys[SDLK_1]) {diffusionOn = false; advectionOn = false;}
         if (keys[SDLK_2]) {diffusionOn = true; advectionOn = false;}
         if (keys[SDLK_3]) {diffusionOn = false; advectionOn = true;}
         if (keys[SDLK_4]) {diffusionOn = true; advectionOn = true;}
         
-        //MSc Project
-        if (keys[SDLK_m]) MSc_ProjectOn = true;
+        // pheromone releasing
+        if (keys[SDLK_m]) isPheromoneExp = true;
         //
 }
 
@@ -440,8 +439,9 @@ int main(int argc,char* argv[])
 		 	}
 		 }
 		 //activate pheromone release function
+		 if (isPheromoneExp == true){
 		 pheroDelayRelease(xPB1_p,xPB2_p,yPB1_p,yPB2_p,phiPB1_p,phiPB2_p,isRobotStop_p, isExperimentStarted);
-       
+		 }
 		//convert the pheromone field to grayscale image
 		
 		image->combinePheromones(pherofield,3,0);		//the last value determines the color channel - 0 is for grayscale, 1 is red etc.
@@ -487,7 +487,7 @@ int main(int argc,char* argv[])
 		gui->update();
 		processEvents();
                 if (enterPressed == true){
-                    ExpTimer.start();
+                    ExpTimer.restart();
                     placement = false;
                     pherofield[0]->clear();
                     Xp = randomX();
@@ -506,7 +506,7 @@ int main(int argc,char* argv[])
                     
                     
                 }
-                if (ExpTimer.getTime() >=300000000) {
+                if (ExpTimer.getTime() >=320000000) {
                     stop = true;
                 }
                  //check if the pheromone intensity at a position is in a certain value range
