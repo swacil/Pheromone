@@ -1,3 +1,7 @@
+# Pheromone System of SwaCIL
+CosΦ is an artificial pheromone system used by SwaCIL. Using this system, we have emulated realistic pheromone-based communication scenarios and investigated pheromone-based swarm behaviours.
+
+
 ## CosΦ: An Artificial Pheromone System for Robotic Swarms
 
 ### Why to study pheromones?
